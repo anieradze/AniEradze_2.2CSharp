@@ -1,8 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using ExcelImportExport.Models;
 
-public class ApplicationDbContext : DbContext
+namespace ExcelImportExport.Models
 {
-    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
+    public class AppDbContext : DbContext
+    {
+        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
-    public DbSet<Personal> Personals { get; set; }
+        public DbSet<Personali> Personali { get; set; }
+    }
 }

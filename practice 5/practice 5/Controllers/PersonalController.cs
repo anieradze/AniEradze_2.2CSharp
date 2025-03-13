@@ -1,70 +1,55 @@
 ﻿using ClosedXML.Excel;
+using ExcelImportExport.Models;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 
-[Route("api/[controller]")]
+[Route("api/personali")]
 [ApiController]
-public class PersonalController : ControllerBase
+public class PersonaliController : ControllerBase
 {
-    private readonly ApplicationDbContext _context;
-    private readonly WorkWithExcel<Personal> _excelHelper;
+    private readonly AppDbContext _context;
+    private readonly ExcelService _excelService;
 
-    public PersonalController(ApplicationDbContext context)
+    public PersonaliController(AppDbContext context, ExcelService excelService)
     {
         _context = context;
-        _excelHelper = new WorkWithExcel<Personal>();
+        _excelService = excelService;
     }
 
     [HttpGet("excel")]
-    public async Task<IActionResult> GetPersonalExcel()
+    public IActionResult GetExcel()
     {
-        var personals = await _context.Personals.ToListAsync();
-
-        if (!personals.Any())
-        {
-            return NotFound("მონაცემები ვერ მოიძებნა.");
-        }
-
-        var workbook = _excelHelper.Generate(personals);
-
-        using (var stream = new MemoryStream())
-        {
-            workbook.SaveAs(stream);
-            var content = stream.ToArray();
-            return File(content,
-                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                        "Personals.xlsx");
-        }
+        var personalebi = _context.Personali.ToList();
+        var fileContents = _excelService.GenerateExcel(personalebi);
+  
+        return File(fileContents, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Personalebi.xlsx");
     }
 
-    [HttpPost("add")]
-    public async Task<IActionResult> AddPersonals()
+    public async Task<IActionResult> AddEmployeesAsync()
     {
-        var newEmployees = new List<Personal>
+        var newEmployees = new List<Personali>
         {
-            new Personal { Gvari = "აბაშიძე", Saxeli = "გიორგი", Ganyofileba = "IT", Qalaqi = "თბილისი", Asaki = 30 },
-            new Personal { Gvari = "ბერიძე", Saxeli = "ანა", Ganyofileba = "HR", Qalaqi = "ბათუმი", Asaki = 28 },
-            new Personal { Gvari = "გაბრიაძე", Saxeli = "ლევან", Ganyofileba = "ბუღალტერია", Qalaqi = "ქუთაისი", Asaki = 35 },
-            new Personal { Gvari = "დვალიშვილი", Saxeli = "მარიამი", Ganyofileba = "იურიდიული", Qalaqi = "რუსთავი", Asaki = 26 },
-            new Personal { Gvari = "ელიზბარაშვილი", Saxeli = "სანდრო", Ganyofileba = "მარკეტინგი", Qalaqi = "გორი", Asaki = 32 }
+            new Personali { Gvari = "გელაშვილი", Saxeli = "თემო", Ganyofileba = "სავაჭრო", Qalaqi = "თბილისი", Xelfasi = 1200, Asaki = 35, Staji = 10, Tarigi_Dabadebis = new DateTime(1989, 3, 15), Sqesi = "კაცი", Email = "temo@gmail.com", Ierarqia = 3 },
+            new Personali { Gvari = "მიხელაძე", Saxeli = "ნინო", Ganyofileba = "სამედიცინო", Qalaqi = "ქუთაისი", Xelfasi = 1100, Asaki = 29, Staji = 5, Tarigi_Dabadebis = new DateTime(1995, 1, 10), Sqesi = "ქალი", Email = "nino@gmail.com", Ierarqia = 2 },
+            new Personali { Gvari = "ჯანაშვილი", Saxeli = "გიორგი", Ganyofileba = "ინფორმატიკა", Qalaqi = "ბათუმი", Xelfasi = 1000, Asaki = 40, Staji = 15, Tarigi_Dabadebis = new DateTime(1982, 8, 25), Sqesi = "კაცი", Email = "giorgi@gmail.com", Ierarqia = 4 },
+            new Personali { Gvari = "აბაშიძე", Saxeli = "ელენა", Ganyofileba = "საგანმანათლებლო", Qalaqi = "ზუგდიდი", Xelfasi = 950, Asaki = 30, Staji = 8, Tarigi_Dabadebis = new DateTime(1993, 11, 20), Sqesi = "ქალი", Email = "elena@gmail.com", Ierarqia = 1 },
+            new Personali { Gvari = "ბალაშვილი", Saxeli = "ლევანი", Ganyofileba = "სამსახურის ტექნიკა", Qalaqi = "გორი", Xelfasi = 1300, Asaki = 25, Staji = 3, Tarigi_Dabadebis = new DateTime(1998, 6, 30), Sqesi = "კაცი", Email = "levani@gmail.com", Ierarqia = 5 }
         };
 
-        _context.Personals.AddRange(newEmployees);
+        await _context.Personali.AddRangeAsync(newEmployees);
         await _context.SaveChangesAsync();
 
-        var workbook = _excelHelper.Generate(newEmployees);
+        return Ok(new { Message = "5 თანამშრომელი დაემატა!" });
+    }
 
-        using (var stream = new MemoryStream())
+    [HttpPost("addandexcel")]
+    public async Task<IActionResult> AddAndGenerateExcel()
+    {
+        var result = await AddEmployeesAsync();
+        if (result is OkObjectResult okResult)
         {
-            workbook.SaveAs(stream);
-            var content = stream.ToArray();
-            return File(content,
-                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                        "NewPersonals.xlsx");
+            return GetExcel();
         }
+
+        return BadRequest(new { Message = "Error adding employees!" });
     }
 }
