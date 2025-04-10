@@ -1,0 +1,36 @@
+﻿@model HigherorLower.Models.GameViewModel
+
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="game-container">
+    <div class="score-board">
+        <h2>Score: @Model.Score</h2>
+    </div>
+
+    <div class="comparison">
+
+        <div class="card left-card">
+            <img src="~/images/@Model.LeftCard.ImageUrl" alt="@Model.LeftCard.Name" class="card-img" />
+            <div class="card-name">@Model.LeftCard.Name</div>
+            <div class="card-result">@Model.LeftCard.Result</div>
+        </div>
+
+        <div class="compare-buttons">
+            <form method="post" action="@Url.Action("Compare")">
+                <input type="hidden" name="leftCardResult" value="@Model.LeftCard.Result" />
+                <input type="hidden" name="rightCardResult" value="@Model.RightCard.Result" />
+                <button class="btn btn-higher" name="selectedCard" value="Higher">Higher</button>
+                <button class="btn btn-lower" name="selectedCard" value="Lower">Lower</button>
+            </form>
+        </div>
+
+        <div class="card right-card">
+            <img src="~/images/@Model.RightCard.ImageUrl" alt="@Model.RightCard.Name" class="card-img" />
+            <div class="card-name">@Model.RightCard.Name</div>
+            <div class="card-result">???</div>
+        </div>
+
+    </div>
+</div>
