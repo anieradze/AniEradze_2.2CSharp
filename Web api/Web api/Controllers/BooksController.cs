@@ -22,7 +22,7 @@ namespace Web_api.Controllers
         [HttpGet]
         public async Task<IActionResult> GetBooks()
         {
-            var query = new CQRS.Handler.GetAllBooks();
+            var query = new CQRS.Handler.GetAllBooksHandler();
             var books = await _mediator.Send(query);
             return Ok(books);
         }

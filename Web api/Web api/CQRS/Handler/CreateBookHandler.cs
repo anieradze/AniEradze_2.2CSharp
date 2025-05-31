@@ -8,19 +8,19 @@ using Web_api.DTOs;
 
 namespace Web_api.CQRS.Handler
 {
-    public class CreateBook : IRequest<CreateBook>
+    public class CreateBookHandler : IRequest<CreateBookHandler>
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private CreateBookDto BookDto;
 
-        public CreateBook(IUnitOfWork unitOfWork, IMapper mapper)
+        public CreateBookHandler(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
         }
 
-        public async Task<Unit> Handle(CreateBook request, CancellationToken cancellationToken)
+        public async Task<Unit> Handle(CreateBookHandler request, CancellationToken cancellationToken)
         {
             await _unitOfWork.BookService.AddAsync(request.BookDto);
             await _unitOfWork.SaveAsync();

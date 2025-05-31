@@ -29,4 +29,9 @@ public class BookService : IBookService
         var book = _mapper.Map<Book>(dto);
         _context.Books.Add(book);
     }
+
+    public Task AddAsync(object bookDto)
+    {
+        throw new NotImplementedException();
+    }
 }
